@@ -19,7 +19,8 @@ namespace DeviceManager
 
         public virtual void PropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
         {
-            Console.WriteLine($"Property {e.PropertyName} changed in device {Id}");
+            var value = ReflectionTool.GetPropertyByName(this, e.PropertyName).GetValue(this);
+            Console.WriteLine($"Property {e.PropertyName} changed in device {Id} Value: {value}");
         }
 
         protected Device(string name)
