@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Threading.Channels;
-
-namespace DeviceManager
+﻿namespace DeviceManager
 {
     public class Program
     {
@@ -17,6 +13,9 @@ namespace DeviceManager
             Console.WriteLine(door);
             Speaker speaker = new Speaker("Loud speaker", Speaker.SoundType.Music, 2.5);
             Console.WriteLine(speaker);
+            CardReader cardReader = new CardReader("Fast CardReader","A01234DE7FFF");
+            cardReader.AccessCardNumber = "0000FF7FDE3412A0";
+            Console.WriteLine(cardReader);
             Console.WriteLine("Device Manager started.");
             Console.ReadKey();
         }
