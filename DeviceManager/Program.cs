@@ -15,6 +15,8 @@ namespace DeviceManager
             door.Locked = false;
             door.OpenedForcibly = true;
             Console.WriteLine(door);
+            Speaker speaker = new Speaker("Loud speaker", Speaker.SoundType.Music, 2.5);
+            Console.WriteLine(speaker);
             Console.WriteLine("Device Manager started.");
             Console.ReadKey();
         }

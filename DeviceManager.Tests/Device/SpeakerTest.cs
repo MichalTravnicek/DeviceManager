@@ -1,0 +1,45 @@
+﻿using System.ComponentModel;
+using Moq;
+using NUnit.Framework;
+
+namespace DeviceManager.Tests.Device;
+
+[TestFixture]
+[TestOf(typeof(Speaker))]
+public class SpeakerTest
+{
+
+    [Test]
+    public void TestCreate()
+    {
+        var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        Assert.That(device.Object, Is.Not.Null);
+        Assert.That(device.Object.Id, Is.Not.Null);
+        Assert.That(device.Object.Type, Is.EqualTo("Speaker"));
+        Assert.That(device.Object.Name, Is.EqualTo("BigSpeaker1"));
+        Assert.That(device.Object.Sound, Is.EqualTo(Speaker.SoundType.Alarm));
+        Assert.That(device.Object.Volume, Is.EqualTo(2.5));
+    }
+
+    [Test]
+    public void TestUpdate()
+    {
+        var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        device.Object.Volume = 2.5;
+        device.Object.Volume = 3.0;
+        device.Verify(dut => dut.PropertyChangedHandler(
+            It.IsAny<DeviceManager.Device>(),It.IsAny<PropertyChangedEventArgs>()),Times.Exactly(3));
+        Assert.That(device.Object.Volume, Is.EqualTo(3.0));
+    }
+    
+    [Test]
+    public void TestUpdate2()
+    {
+        var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        device.Object.Sound = Speaker.SoundType.Music;
+        device.Object.Sound = Speaker.SoundType.Music;
+        device.Verify(dut => dut.PropertyChangedHandler(
+            It.IsAny<DeviceManager.Device>(),It.IsAny<PropertyChangedEventArgs>()),Times.Exactly(3));
+        Assert.That(device.Object.Sound, Is.EqualTo(Speaker.SoundType.Music));
+    }
+}
