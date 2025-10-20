@@ -23,7 +23,6 @@ namespace DeviceManager
         public SoundType Sound { get; set => SetProperty(ref field, value); }
 
         [Logged(2)]
-        public double Volume
-        { get; set => SetProperty(ref field, value); }
+        public double Volume { get; set => SetProperty(ref field, value); }
     }
 }

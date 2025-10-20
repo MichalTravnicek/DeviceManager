@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
 using System.Reflection;
-using System.Text;
 
 namespace DeviceManager
 {
     internal static class ReflectionTool
     {
-        public static PropertyInfo GetPropertyByName<T>(T obj, string name) where T : class
+        public static PropertyInfo GetPropertyByName<T>(T obj, string name)
         {
             var type = obj.GetType();
             var properties = type.GetProperties().First(x => x.Name == name);
@@ -19,26 +18,41 @@ namespace DeviceManager
             var properties = type.GetProperties()
                 .Where(x => Attribute.IsDefined(x, atr));
             return properties;
-
         }
-
+        
+        /// <summary>
+        /// Prints properties ordered by position
+        /// </summary>
         public static string PrintProps<T>(T obj)
         {
-            var text = new StringBuilder();
-            var props = GetAnnotatedProperties(obj, typeof(LoggedAttribute));            
-            props = props.OrderBy(x => x.GetCustomAttribute<LoggedAttribute>()!.Position);
-            var list = props.ToImmutableList();
-            for (int i = 0; i < list.Count; i++)
-            {
-                text.Append(list[i].Name + ": ");
-                text.Append(list[i].GetValue(obj));
-                if (i < list.Count - 1) {
-                    text.Append(", ");
-                }
-            }
-            return text.ToString();
-            
+            return string.Join(", ", GetPropertiesValues(obj)
+                .Select(x => x.Key + ": " + x.Value));
         }
 
+        /// <summary>
+        /// Prints properties ordered by position (without suppressed)
+        /// </summary>
+        public static string PrintFilteredProps<T>(T obj)
+        {
+            return string.Join(", ", GetPropertiesValues(obj)
+                .SkipWhile(x => GetPropertyByName(obj, x.Key)
+                    .GetCustomAttribute<LoggedAttribute>()!.Position < -99)
+                .Select(x => x.Key + ": " + x.Value));
+        }
+
+        public static OrderedDictionary<string,object> GetPropertiesValues<T>(T obj)
+        {
+            var props = GetAnnotatedProperties(obj, typeof(LoggedAttribute));
+            var sorted = props
+                .OrderBy(x => x.GetCustomAttribute<LoggedAttribute>()!.Position)
+                .Select(p => (p.Name, p.GetValue(obj)))
+                .ToImmutableList();
+            var dict = new OrderedDictionary<string, object>();
+            foreach (var prop in sorted)
+            {
+                dict.Add(prop.Item1, prop.Item2);
+            }
+            return dict;
+        }
     }
 }

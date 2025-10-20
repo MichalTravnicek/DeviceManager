@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Moq;
 using NUnit.Framework;
 
@@ -24,14 +25,16 @@ public class DoorTest
     public void TestGetState()
     {
         var device = new Mock<Door>("TestDoor1") {CallBase = true};
-        var state = device.Object.GetCurrentState();
+        var state = device.Object.GetCurrentStateDetails();
         Assert.That(state, Is.Not.Null);
-        Assert.That(state, Contains.Substring("Id"));
-        Assert.That(state, Contains.Substring("TestDoor1"));
-        Assert.That(state, Contains.Substring("Locked"));
-        Assert.That(state, Contains.Substring("Open"));
-        Assert.That(state, Contains.Substring("OpenForTooLong"));
-        Assert.That(state, Contains.Substring("OpenedForcibly"));
+        Assert.That(state, Contains.Key("Id"));
+        Assert.That(state["Id"], Is.Not.Null);
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Name","TestDoor1")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Type","Door")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Locked", true)));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Open", false)));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("OpenForTooLong", false)));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("OpenedForcibly", false)));
     }
     
     [Test]

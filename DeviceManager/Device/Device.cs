@@ -7,14 +7,15 @@ namespace DeviceManager
     {
         private static int _nextId = 0;
 
-        [Logged(-1)]
+        [Logged(-2)]
         [ObservableProperty]
         public required partial string Id { get; set; }
 
+        [Logged]
         [ObservableProperty]
         public required partial string Name { get; set; }
 
-        [Logged(0)]
+        [Logged(-1)]
         public abstract string Type { get; init; }
 
         public virtual void PropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
@@ -33,12 +34,17 @@ namespace DeviceManager
 
         public virtual string GetCurrentState()
         {
-            return ToString();
+            return ReflectionTool.PrintProps(this);
+        }
+        
+        public virtual OrderedDictionary<string,object> GetCurrentStateDetails()
+        {
+            return ReflectionTool.GetPropertiesValues(this);
         }
 
         public override string ToString()
         {
-            return $"Device: {Name} (" + ReflectionTool.PrintProps(this) + ")";
+            return $"Device: {Name} (" + ReflectionTool.PrintFilteredProps(this) + ")";
         }
     }
 }

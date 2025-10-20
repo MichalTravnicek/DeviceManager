@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Moq;
 using NUnit.Framework;
 
@@ -19,6 +20,21 @@ public class SpeakerTest
         Assert.That(device.Object.Name, Is.EqualTo("BigSpeaker1"));
         Assert.That(device.Object.Sound, Is.EqualTo(Speaker.SoundType.Alarm));
         Assert.That(device.Object.Volume, Is.EqualTo(2.5));
+    }
+
+    [Test]
+    public void TestGetState()
+    {
+        var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        Assert.That(device.Object, Is.Not.Null);
+        var state = device.Object.GetCurrentStateDetails();
+        Assert.That(state, Is.Not.Null);
+        Assert.That(state, Contains.Key("Id"));
+        Assert.That(state["Id"], Is.Not.Null);
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Name","BigSpeaker1")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Type","Speaker")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Sound", Speaker.SoundType.Alarm)));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Volume", 2.5)));
     }
 
     [Test]

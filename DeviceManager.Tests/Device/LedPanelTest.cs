@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using Moq;
 using NUnit.Framework;
@@ -22,7 +23,7 @@ public class LedPanelTest
     [Test]
     public void TestUpdate()
     {
-        var device = new Mock<LedPanel>("TestName","Watch this") {CallBase = true};
+        var device = new Mock<LedPanel>("TestPanel1","Watch this") {CallBase = true};
         device.Object.Message = "My message";
         device.Object.Message = "My message";
         device.Object.Message = "My message";
@@ -35,11 +36,13 @@ public class LedPanelTest
     [Test]
     public void TestGetState()
     {
-        var device = new Mock<LedPanel>("TestName","Watch this") { CallBase = true };
-        var state = device.Object.GetCurrentState();
+        var device = new Mock<LedPanel>("TestPanel1","Watch this") { CallBase = true };
+        var state = device.Object.GetCurrentStateDetails();
         Assert.That(state, Is.Not.Null);
-        Assert.That(state, Contains.Substring("Id"));
-        Assert.That(state, Contains.Substring("TestName"));
-        Assert.That(state, Contains.Substring("Watch this"));
+        Assert.That(state, Contains.Key("Id"));
+        Assert.That(state["Id"], Is.Not.Null);
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Name","TestPanel1")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Type","LedPanel")));
+        Assert.That(state, Contains.Item(new KeyValuePair<string,object>("Message", "Watch this")));
     }
 }

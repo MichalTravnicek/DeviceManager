@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using Moq;
 using NUnit.Framework;
@@ -35,8 +36,14 @@ public class DeviceTest
     {
         var device = new Mock<DeviceManager.Device>("TestName") { CallBase = true };
         var state = device.Object.GetCurrentState();
+        var stateDetails = device.Object.GetCurrentStateDetails();
         Assert.That(state, Is.Not.Null);
         Assert.That(state, Contains.Substring("Id"));
         Assert.That(state, Contains.Substring("TestName"));
+        Assert.That(stateDetails, Is.Not.Null);
+        Assert.That(stateDetails, Contains.Key("Id"));
+        Assert.That(stateDetails["Id"], Is.Not.Null);
+        Assert.That(stateDetails, Contains.Item(new KeyValuePair<string,object>("Name", "TestName")));
+        Assert.That(stateDetails, Contains.Item(new KeyValuePair<string,object>("Type", null)));
     }
 }
