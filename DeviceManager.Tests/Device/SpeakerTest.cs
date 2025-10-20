@@ -25,10 +25,14 @@ public class SpeakerTest
     public void TestUpdate()
     {
         var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        // +1 registered change from constructor
+        device.Object.Volume = 2.5;
         device.Object.Volume = 2.5;
         device.Object.Volume = 3.0;
+        device.Object.Volume = 3.0;
         device.Verify(dut => dut.PropertyChangedHandler(
-            It.IsAny<DeviceManager.Device>(),It.IsAny<PropertyChangedEventArgs>()),Times.Exactly(3));
+            It.IsAny<DeviceManager.Device>(),It.Is<PropertyChangedEventArgs>(
+                args => args.PropertyName == "Volume")),Times.Exactly(2));
         Assert.That(device.Object.Volume, Is.EqualTo(3.0));
     }
     
@@ -36,10 +40,15 @@ public class SpeakerTest
     public void TestUpdate2()
     {
         var device = new Mock<Speaker>("BigSpeaker1", Speaker.SoundType.Alarm, 2.5) {CallBase = true};
+        // +1 registered change from constructor
         device.Object.Sound = Speaker.SoundType.Music;
         device.Object.Sound = Speaker.SoundType.Music;
-        device.Verify(dut => dut.PropertyChangedHandler(
-            It.IsAny<DeviceManager.Device>(),It.IsAny<PropertyChangedEventArgs>()),Times.Exactly(3));
         Assert.That(device.Object.Sound, Is.EqualTo(Speaker.SoundType.Music));
+        device.Object.Sound = Speaker.SoundType.None;
+        device.Object.Sound = Speaker.SoundType.None;
+        device.Verify(dut => dut.PropertyChangedHandler(
+            It.IsAny<DeviceManager.Device>(),It.Is<PropertyChangedEventArgs>(
+                args => args.PropertyName == "Sound")),Times.Exactly(3));
+        Assert.That(device.Object.Sound, Is.EqualTo(Speaker.SoundType.None));
     }
 }
