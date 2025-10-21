@@ -9,5 +9,6 @@ public interface IDeviceTree
     void RemoveDeviceFromGroup(string groupName, string deviceId);
     void DisplayTree();
     List<string> GetGroups();
-    Device GetDevice(string currentDeviceId);
+    bool GroupContains(string groupName, string deviceId);
+    Device GetDevice(string deviceId);
 }

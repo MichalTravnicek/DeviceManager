@@ -4,12 +4,17 @@
     {
         private readonly List<DeviceGroup> _groups = new List<DeviceGroup>();
         private readonly Dictionary<string, Device> _devicesById = new Dictionary<string, Device>();
-        
+        private readonly Dictionary<Device, string> _deviceGroups = new Dictionary<Device, string>();
+
+        internal List<DeviceGroup> Groups => _groups;
+        private TreeRenderer _treeRenderer;
+
         public DeviceTree()
-        {  
+        {
+            _treeRenderer = new TreeRenderer(this);
         }
 
-        public void AddGroup(string name)
+        private void AddGroupInternal(string name)
         {
             if (_groups.Any(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
@@ -19,14 +24,25 @@
             _groups.Add(new DeviceGroup(name));
         }
 
-        public void RemoveGroup(string name)
+        private DeviceGroup GetGroupInternal(string name)
         {
-            var groupToRemove = _groups.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (groupToRemove == null)
+            var group = _groups.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (group == null)
             {
                 Console.WriteLine($"Error: Group '{name}' not found.");
-                return;
+                throw new Exception("Group not found.");
             }
+            return group;
+        }
+        
+        private string GetGroupInternal(Device device)
+        {
+            return _deviceGroups[device];
+        }
+
+        private void RemoveGroupInternal(string name)
+        {
+            var groupToRemove = GetGroupInternal(name);
 
             foreach (var device in groupToRemove.Devices)
             {
@@ -35,14 +51,20 @@
             _groups.Remove(groupToRemove);
         }
 
-        public void AddDeviceToGroup(string groupName, Device device)
+        private Device GetDeviceInternal(DeviceGroup group, string deviceId)
         {
-            var group = _groups.FirstOrDefault(g => g.Name.Equals(groupName, StringComparison.OrdinalIgnoreCase));
-            if (group == null)
+            var device = group.Devices.FirstOrDefault(d => d.Id == deviceId);
+            if (device == null)
             {
-                Console.WriteLine($"Error: Group '{groupName}' not found.");
-                return;
+                Console.WriteLine($"Error: Device with ID {deviceId} not found in group '{group.Name}'.");
+                throw new Exception("Device not found:" + deviceId);
             }
+            return device;
+        }
+
+        private void AddDeviceInternal(string groupName, Device device)
+        {
+            var group = GetGroupInternal(groupName);
 
             if (_devicesById.ContainsKey(device.Id))
             {
@@ -51,57 +73,62 @@
             }
 
             group.Devices.Add(device);
+            _deviceGroups.Add(device, groupName);
             _devicesById[device.Id] = device;
+        }
+
+        private void MoveDeviceInternal(string sourceGroupName, string targeGroupName, string deviceId)
+        {
+            var group = GetGroupInternal(sourceGroupName);
+            var targetGroup = GetGroupInternal(targeGroupName);
+
+            var deviceToMove = GetDeviceInternal(group,deviceId);
+
+            group.Devices.Remove(deviceToMove);
+            _deviceGroups[deviceToMove] = targeGroupName;
+            targetGroup.Devices.Add(deviceToMove);
+        }
+        
+        private void RemoveDeviceInternal(string groupName, string deviceId)
+        {
+            
+            var group = GetGroupInternal(groupName);
+            var deviceToRemove = GetDeviceInternal(group, deviceId);
+
+            group.Devices.Remove(deviceToRemove);
+            _deviceGroups.Remove(deviceToRemove);
+            _devicesById.Remove(deviceId);   
+        }
+
+        public void AddGroup(string name)
+        {
+            AddGroupInternal(name);
+        }
+
+        public void RemoveGroup(string name)
+        {
+            RemoveGroupInternal(name);
+        }
+
+        public void AddDeviceToGroup(string groupName, Device device)
+        {
+            AddDeviceInternal(groupName, device);
         }
 
         public void MoveDeviceToGroup(string groupName, Device device)
         {
-            throw new NotImplementedException();
+            var sourceGroup = GetGroupInternal(device);
+            MoveDeviceInternal(sourceGroup, groupName, device.Id);
         }
 
         public void RemoveDeviceFromGroup(string groupName, string deviceId)
         {
-            var group = _groups.FirstOrDefault(g => g.Name.Equals(groupName, StringComparison.OrdinalIgnoreCase));
-            if (group == null)
-            {
-                Console.WriteLine($"Error: Group '{groupName}' not found.");
-                return;
-            }
-
-            var deviceToRemove = group.Devices.FirstOrDefault(d => d.Id == deviceId);
-            if (deviceToRemove == null)
-            {
-                Console.WriteLine($"Error: Device with ID {deviceId} not found in group '{groupName}'.");
-                return;
-            }
-
-            group.Devices.Remove(deviceToRemove);
-            _devicesById.Remove(deviceId);
+            RemoveDeviceInternal(groupName, deviceId);
         }
 
         public void DisplayTree()
         {
-            Console.WriteLine("--- Device Tree Structure ---");
-            if (_groups.Count == 0)
-            {
-                Console.WriteLine("No groups found.");
-                return;
-            }
-
-            foreach (var group in _groups)
-            {
-                Console.WriteLine($"\n└─ Group: {group.Name}");
-                if (group.Devices.Count == 0)
-                {
-                    Console.WriteLine("  No devices in this group.");
-                    continue;
-                }
-                foreach (var device in group.Devices)
-                {
-                    Console.WriteLine($"  └── {device.GetCurrentState()}");
-                }
-            }
-            Console.WriteLine("\n--- End of Tree ---");
+            _treeRenderer.DisplayTree();
         }
 
         public List<string> GetGroups()
@@ -109,10 +136,19 @@
             return _groups.Select(g => g.Name).ToList();
         }
 
-        public Device GetDevice(string currentDeviceId)
+        public bool GroupContains(string groupName, string deviceId)
         {
-            return !_devicesById.TryGetValue(currentDeviceId, out var device) ? 
-                throw new KeyNotFoundException($"Device with ID {currentDeviceId} not found.") : device;
+            var group = GetGroupInternal(groupName);
+            var device = GetDeviceInternal(group, deviceId);
+            _deviceGroups.TryGetValue(device, out var foundDeviceGroup);
+            Console.WriteLine(foundDeviceGroup);
+            return foundDeviceGroup != null && foundDeviceGroup.Equals(groupName);
+        }
+
+        public Device GetDevice(string deviceId)
+        {
+            return !_devicesById.TryGetValue(deviceId, out var device) ? 
+                throw new KeyNotFoundException($"Device with ID {deviceId} not found.") : device;
         }
     }
 

@@ -37,14 +37,18 @@ public class DeviceTreeTest
     [Test, Order(4)]
     public void TestMoveDevice()
     {
-        Console.WriteLine("Not implemented");
+        tree.AddGroup("Group2");
+        tree.MoveDeviceToGroup("Group2", _device);
+        Assert.That(tree.GetDevice(_device.Id), Is.Not.Null);
+        Assert.That(tree.GetGroups(), Contains.Item("Group2"));
+        Assert.That(tree.GroupContains("Group2", _device.Id), Is.True);
     }
     
     [Test, Order(5)]
     public void TestRemoveDevice()
     {
         Assert.That(tree.GetDevice(_device.Id), Is.Not.Null);
-        tree.RemoveDeviceFromGroup("Group1", _device.Id);
+        tree.RemoveDeviceFromGroup("Group2", _device.Id);
         Assert.Throws<KeyNotFoundException>(() =>  tree.GetDevice(_device.Id));
     }
     
