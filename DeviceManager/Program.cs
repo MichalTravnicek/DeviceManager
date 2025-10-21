@@ -12,9 +12,25 @@
 
         }
 
+        private static bool skip = false;
+
         private static void Wait(int time)
         {
-            Thread.Sleep(time);
+            if (!skip)
+            {
+                Thread.Sleep(time);
+            }
+        }
+
+        private static void MonitorKeypress()
+        {
+            new Thread(() => 
+            {
+                Thread.CurrentThread.IsBackground = true; 
+                Console.ReadKey();
+                skip = true;
+                Console.WriteLine("Skipping..."); 
+            }).Start();
         }
         
         static void Main(string[] args)
@@ -30,6 +46,7 @@
             panel.Message = "New Message!";
             panel.Name = "New Panel";
 
+            MonitorKeypress();
             Wait(1000);
             
             // ______________TREE_______________________________________________ 
@@ -69,6 +86,8 @@
             Wait(2000);
             speaker.Sound = Speaker.SoundType.Alarm;
             speaker.Volume = 3.5;
+            var reader = new CardReader("FastReader", "A01234DE7FFF");
+            tree.AddDeviceToGroup("Office Devices", reader);
             tree.DisplayTree();
             door.CurrentState = Door.State.Open | Door.State.OpenedForcibly;
             door.CurrentState = 0;

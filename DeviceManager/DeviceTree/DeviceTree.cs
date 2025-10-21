@@ -168,6 +168,10 @@ namespace DeviceManager
 
         public bool GroupContains(string groupName, string deviceId)
         {
+            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(deviceId))
+            {
+                return false;
+            }
             var group = GetGroupInternal(groupName);
             var device = GetDeviceInternal(group, deviceId);
             _deviceGroups.TryGetValue(device, out var foundDeviceGroup);
