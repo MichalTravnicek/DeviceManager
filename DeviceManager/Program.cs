@@ -2,8 +2,17 @@
 {
     public class Program
     {
+        private static DeviceEventReceiver _deviceEventReceiver;
+        private static TreeEventReceiver _treeEventReceiver;
+        private static void Init()
+        {
+            _deviceEventReceiver = new DeviceEventReceiver();
+            _treeEventReceiver = new TreeEventReceiver();
+
+        }
         static void Main(string[] args)
         {
+            Init();
             Console.WriteLine("Hello World!");
             LedPanel panel = new LedPanel("Main Entrance Panel", "Welcome to our facility!");
             LedPanel panel2 = new("Back Entrance Panel", "Authorized Personnel Only");
@@ -19,6 +28,8 @@
             // ______________TREE_______________________________________________ 
             
             var tree = new DeviceTree();
+            _deviceEventReceiver.Register(tree.DeviceEventCondition);
+            _treeEventReceiver.Register(tree.TreeEventCondition);
 
             // Přidání skupin
             tree.AddGroup("Office Devices");
@@ -39,6 +50,7 @@
             Door door = new Door("Tiny door");
             Console.WriteLine(door);
             tree.AddDeviceToGroup("Office Devices", door);
+            tree.MoveDeviceToGroup("Warehouse Devices", door);
             door.CurrentState = Door.State.Open | Door.State.OpenedForcibly;
             door.CurrentState = 0;
             door.Locked = true;

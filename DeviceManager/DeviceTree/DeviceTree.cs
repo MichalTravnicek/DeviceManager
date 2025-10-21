@@ -1,17 +1,33 @@
-﻿namespace DeviceManager
+﻿using System.Collections.Specialized;
+using CommunityToolkit.Mvvm.Messaging;
+
+namespace DeviceManager
 {
     public class DeviceTree : IDeviceTree
     {
+        public readonly string TreeId = "Tree 001";
         private readonly List<DeviceGroup> _groups = new List<DeviceGroup>();
         private readonly Dictionary<string, Device> _devicesById = new Dictionary<string, Device>();
         private readonly Dictionary<Device, string> _deviceGroups = new Dictionary<Device, string>();
+        
+        private event NotifyCollectionChangedEventHandler TreeChanged;
 
         internal List<DeviceGroup> Groups => _groups;
         private TreeRenderer _treeRenderer;
+        
+        private void OnTreeUpdate(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            Console.WriteLine("Tree changed$$$:" + e.Action);
+            MessengerImpl.Get().Send(new TreeMessage(TreeId, "DeviceTree modified:"+e.Action));
+        }
 
+        public bool DeviceEventCondition(DeviceMessage x) => _devicesById.ContainsKey(x.DeviceId);
+        public bool TreeEventCondition(TreeMessage x) => TreeId.Equals(x.TreeId);
+        
         public DeviceTree()
         {
             _treeRenderer = new TreeRenderer(this);
+            TreeChanged += OnTreeUpdate;
         }
 
         private void AddGroupInternal(string name)
@@ -22,6 +38,8 @@
                 return;
             }
             _groups.Add(new DeviceGroup(name));
+            TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+                NotifyCollectionChangedAction.Add, _groups.Last()));
         }
 
         private DeviceGroup GetGroupInternal(string name)
@@ -49,6 +67,8 @@
                 _devicesById.Remove(device.Id);
             }
             _groups.Remove(groupToRemove);
+            TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+                NotifyCollectionChangedAction.Remove, groupToRemove));
         }
 
         private Device GetDeviceInternal(DeviceGroup group, string deviceId)
@@ -75,6 +95,8 @@
             group.Devices.Add(device);
             _deviceGroups.Add(device, groupName);
             _devicesById[device.Id] = device;
+            TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+                NotifyCollectionChangedAction.Add, device));
         }
 
         private void MoveDeviceInternal(string sourceGroupName, string targeGroupName, string deviceId)
@@ -87,17 +109,21 @@
             group.Devices.Remove(deviceToMove);
             _deviceGroups[deviceToMove] = targeGroupName;
             targetGroup.Devices.Add(deviceToMove);
+            TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+                // action Move is not supported in handler
+                NotifyCollectionChangedAction.Replace, sourceGroupName, targeGroupName));
         }
         
         private void RemoveDeviceInternal(string groupName, string deviceId)
         {
-            
             var group = GetGroupInternal(groupName);
             var deviceToRemove = GetDeviceInternal(group, deviceId);
 
             group.Devices.Remove(deviceToRemove);
             _deviceGroups.Remove(deviceToRemove);
-            _devicesById.Remove(deviceId);   
+            _devicesById.Remove(deviceId);  
+            TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+                NotifyCollectionChangedAction.Remove, deviceToRemove));
         }
 
         public void AddGroup(string name)
@@ -124,6 +150,7 @@
         public void RemoveDeviceFromGroup(string groupName, string deviceId)
         {
             RemoveDeviceInternal(groupName, deviceId);
+            
         }
 
         public void DisplayTree()

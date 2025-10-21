@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace DeviceManager
 {
@@ -18,10 +19,13 @@ namespace DeviceManager
         [Logged(-1)]
         public abstract string Type { get; init; }
 
+        private readonly IMessenger _messenger = MessengerImpl.Get();
+
         public virtual void PropertyChangedHandler(object? sender, PropertyChangedEventArgs e)
         {
             var value = ReflectionTool.GetPropertyByName(this, e.PropertyName).GetValue(this);
             Console.WriteLine($"Property {e.PropertyName} changed in device {Id} Value: {value}");
+            _messenger.Send(new DeviceMessage(Id, "Device property modified:"+e.PropertyName));
         }
 
         protected Device(string name)
