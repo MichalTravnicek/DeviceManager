@@ -15,6 +15,7 @@ namespace DeviceManager
         public State CurrentState { get; set; }
 
         [Logged(1)]
+        [EditableProperty]
         public bool Locked
         {
             get => CurrentState.HasFlag(State.Locked);
@@ -22,6 +23,7 @@ namespace DeviceManager
         }
 
         [Logged(2)]
+        [EditableProperty]
         public bool Open
         {
             get => CurrentState.HasFlag(State.Open);
@@ -29,6 +31,7 @@ namespace DeviceManager
         }
 
         [Logged(3)]
+        [EditableProperty]
         public bool OpenForTooLong
         {
             get => CurrentState.HasFlag(State.OpenForTooLong);
@@ -36,6 +39,7 @@ namespace DeviceManager
         }
 
         [Logged(4)]
+        [EditableProperty]
         public bool OpenedForcibly
         {
             get => CurrentState.HasFlag(State.OpenedForcibly);

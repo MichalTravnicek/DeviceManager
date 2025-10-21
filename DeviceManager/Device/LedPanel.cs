@@ -13,6 +13,7 @@ namespace DeviceManager
         }
 
         [Logged(1)]
+        [EditableProperty]
         public string Message
         {
             get;

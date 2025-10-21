@@ -75,7 +75,9 @@
             door.Locked = true;
             door.Open = true;
             Console.WriteLine(door.GetCurrentState());
-            Console.ReadKey();
+            
+            Wait(1000);
+            CommandPrompt.Run(tree);
         }
     }
 }

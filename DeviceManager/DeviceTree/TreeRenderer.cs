@@ -5,13 +5,13 @@ public class TreeRenderer(DeviceTree tree)
     public void DisplayTree()
     {
         Console.WriteLine("--- Device Tree Structure ---");
-        if (tree.Groups.Count == 0)
+        if (tree.DeviceGroups.Count == 0)
         {
             Console.WriteLine("No groups found.");
             return;
         }
 
-        foreach (var group in tree.Groups)
+        foreach (var group in tree.DeviceGroups)
         {
             Console.WriteLine($"\n└─ Group: {group.Name}");
             if (group.Devices.Count == 0)

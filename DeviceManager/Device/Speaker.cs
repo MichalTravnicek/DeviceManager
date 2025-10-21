@@ -20,9 +20,11 @@ namespace DeviceManager
         }
 
         [Logged(1)]
+        [EditableProperty]
         public SoundType Sound { get; set => SetProperty(ref field, value); }
 
         [Logged(2)]
+        [EditableProperty]
         public double Volume { get; set => SetProperty(ref field, value); }
     }
 }

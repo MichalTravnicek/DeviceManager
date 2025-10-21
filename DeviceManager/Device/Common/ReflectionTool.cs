@@ -54,5 +54,13 @@ namespace DeviceManager
             }
             return dict;
         }
+        
+        public static IEnumerable<PropertyInfo> GetEditableProperties<T>(T obj) where T : class
+        {
+            var type = obj.GetType();
+            var properties = type.GetProperties()
+                .Where(x=> Attribute.IsDefined(x, typeof(EditablePropertyAttribute)));
+            return properties;
+        }
     }
 }

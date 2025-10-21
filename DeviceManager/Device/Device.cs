@@ -10,10 +10,12 @@ namespace DeviceManager
 
         [Logged(-2)]
         [ObservableProperty]
+        [EditableProperty]
         public required partial string Id { get; set; }
 
         [Logged]
         [ObservableProperty]
+        [EditableProperty]
         public required partial string Name { get; set; }
 
         [Logged(-1)]

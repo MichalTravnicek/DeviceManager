@@ -11,4 +11,5 @@ public interface IDeviceTree
     List<string> GetGroups();
     bool GroupContains(string groupName, string deviceId);
     Device GetDevice(string deviceId);
+    int GetDeviceCount();
 }

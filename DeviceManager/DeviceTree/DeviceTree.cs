@@ -12,7 +12,7 @@ namespace DeviceManager
         
         private event NotifyCollectionChangedEventHandler TreeChanged;
 
-        internal List<DeviceGroup> Groups => _groups;
+        internal List<DeviceGroup> DeviceGroups => _groups;
         private TreeRenderer _treeRenderer;
         
         private void OnTreeUpdate(object? sender, NotifyCollectionChangedEventArgs e)
@@ -179,6 +179,11 @@ namespace DeviceManager
         {
             return !_devicesById.TryGetValue(deviceId, out var device) ? 
                 throw new KeyNotFoundException($"Device with ID {deviceId} not found.") : device;
+        }
+
+        public int GetDeviceCount()
+        {
+            return _devicesById.Count;
         }
     }
 
