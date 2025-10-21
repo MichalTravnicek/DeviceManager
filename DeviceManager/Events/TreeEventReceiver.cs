@@ -29,7 +29,10 @@ namespace DeviceManager
                 Console.WriteLine("Tree Event: !!! Not in tree"); 
                 return;
             }
-            Console.WriteLine("Tree Event: !!! TreeMessage:" + received.TreeId + " " + received.Message);
+
+            Console.WriteLine($"Tree Event: !!! {received.Timestamp})");
+            Console.WriteLine(received.TreeId + " " + received.Message);
+            Console.WriteLine("New: " + received.EventArgs.NewItems?[0] + " Old: " +received.EventArgs.OldItems?[0]);
         }
     }
 }

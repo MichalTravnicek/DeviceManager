@@ -4,12 +4,19 @@
     {
         private static DeviceEventReceiver _deviceEventReceiver;
         private static TreeEventReceiver _treeEventReceiver;
+        
         private static void Init()
         {
             _deviceEventReceiver = new DeviceEventReceiver();
             _treeEventReceiver = new TreeEventReceiver();
 
         }
+
+        private static void Wait(int time)
+        {
+            Thread.Sleep(time);
+        }
+        
         static void Main(string[] args)
         {
             Init();
@@ -23,7 +30,7 @@
             panel.Message = "New Message!";
             panel.Name = "New Panel";
 
-            Thread.Sleep(1000);
+            Wait(1000);
             
             // ______________TREE_______________________________________________ 
             
@@ -33,6 +40,7 @@
 
             // Přidání skupin
             tree.AddGroup("Office Devices");
+            Wait(1000);
             tree.AddGroup("Warehouse Devices");
 
             // Přidání zařízení
@@ -42,15 +50,26 @@
             var ledPanel3 = new LedPanel("Unconnected Display", "Hello...");
 
             tree.AddDeviceToGroup("Office Devices", ledPanel1);
+            Wait(1000);
             tree.AddDeviceToGroup("Warehouse Devices", ledPanel2);
+            Wait(1000);
             tree.AddDeviceToGroup("Office Devices", sensor);
-
-            tree.DisplayTree();
 
             Door door = new Door("Tiny door");
             Console.WriteLine(door);
+            Wait(2000);
             tree.AddDeviceToGroup("Office Devices", door);
+            Wait(2000);
             tree.MoveDeviceToGroup("Warehouse Devices", door);
+            Wait(2000);
+            tree.RemoveDeviceFromGroup("Warehouse Devices", door.Id);
+            Wait(2000);
+            var speaker = new Speaker("Big Speaker", Speaker.SoundType.Music,2.0);
+            tree.AddDeviceToGroup("Office Devices", speaker);
+            Wait(2000);
+            speaker.Sound = Speaker.SoundType.Alarm;
+            speaker.Volume = 3.5;
+            tree.DisplayTree();
             door.CurrentState = Door.State.Open | Door.State.OpenedForcibly;
             door.CurrentState = 0;
             door.Locked = true;

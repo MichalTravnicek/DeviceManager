@@ -5,7 +5,7 @@ namespace DeviceManager
 {
     public class DeviceTree : IDeviceTree
     {
-        public readonly string TreeId = "Tree 001";
+        public readonly string TreeId = "Tree-001";
         private readonly List<DeviceGroup> _groups = new List<DeviceGroup>();
         private readonly Dictionary<string, Device> _devicesById = new Dictionary<string, Device>();
         private readonly Dictionary<Device, string> _deviceGroups = new Dictionary<Device, string>();
@@ -17,8 +17,11 @@ namespace DeviceManager
         
         private void OnTreeUpdate(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            Console.WriteLine("Tree changed$$$:" + e.Action);
-            MessengerImpl.Get().Send(new TreeMessage(TreeId, "DeviceTree modified:"+e.Action));
+            var action = e.Action == NotifyCollectionChangedAction.Replace ? 
+                NotifyCollectionChangedAction.Move : e.Action;
+            Console.WriteLine("Tree changed$$$:" + action);
+            MessengerImpl.Get().Send(new TreeMessage(TreeId, "DeviceTree operation:" + action, e));
+            DisplayTree();
         }
 
         public bool DeviceEventCondition(DeviceMessage x) => _devicesById.ContainsKey(x.DeviceId);
@@ -109,9 +112,9 @@ namespace DeviceManager
             group.Devices.Remove(deviceToMove);
             _deviceGroups[deviceToMove] = targeGroupName;
             targetGroup.Devices.Add(deviceToMove);
+            
             TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-                // action Move is not supported in handler
-                NotifyCollectionChangedAction.Replace, sourceGroupName, targeGroupName));
+                NotifyCollectionChangedAction.Replace, targeGroupName, sourceGroupName));
         }
         
         private void RemoveDeviceInternal(string groupName, string deviceId)
