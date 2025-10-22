@@ -8,10 +8,28 @@ namespace DeviceManager
     {
         private static int _nextId = 0;
 
+        private Dictionary<string, Device> _devicesById =  new Dictionary<string, Device>();
+
         [Logged(-2)]
-        [ObservableProperty]
         [EditableProperty]
-        public required partial string Id { get; set; }
+        public required string Id { get;
+            set
+            {
+                if (_devicesById != null && _devicesById.ContainsKey(value))
+                {
+                    Console.WriteLine($"!!!! Error: Id {value} is already in use !!!!");
+                    return;
+                }
+
+                if (_devicesById != null && field != null)
+                {
+                    _devicesById.Remove(field);
+                    _devicesById.Add(value, this);
+                    Console.WriteLine("!!! Updating id....");
+                }
+                field = value;
+                OnPropertyChanged();
+            } }
 
         [Logged]
         [ObservableProperty]
@@ -28,6 +46,16 @@ namespace DeviceManager
             var value = ReflectionTool.GetPropertyByName(this, e.PropertyName).GetValue(this);
             Console.WriteLine($"Property {e.PropertyName} changed in device {Id} Value: {value}");
             _messenger.Send(new DeviceMessage(Id, "Device property modified:"+e.PropertyName));
+        }
+
+        public void SetDeviceIdLink(Dictionary<string, Device> devices)
+        {
+            _devicesById =  devices;
+        }
+
+        public void RemoveDeviceIdLink()
+        {
+            _devicesById =  null;
         }
 
         protected Device(string name)

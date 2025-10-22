@@ -94,7 +94,11 @@
             door.Locked = true;
             door.Open = true;
             Console.WriteLine(door.GetCurrentState());
-            
+            ledPanel1.Id = "100";
+            ledPanel1.Id = "8";
+            Console.WriteLine("Press any key to exit");
+            tree.RemoveDeviceFromGroup("Office Devices", ledPanel1.Id);
+            ledPanel1.Id = "8";
             Wait(1000);
             CommandPrompt.Run(tree);
         }

@@ -255,7 +255,7 @@ namespace DeviceManager
             Console.WriteLine($"Device {newDevice} added to group {groupName}.");
         }
 
-        private static void SetValue(Object editedObject, PropertyInfo propertyInfo)
+        private static void SetValue(Device editedObject, PropertyInfo propertyInfo)
         {
             switch (propertyInfo.PropertyType.Name)
             {
@@ -296,6 +296,12 @@ namespace DeviceManager
                     propertyInfo.SetValue(editedObject, Convert.ChangeType(inputDouble, propertyInfo.PropertyType));
                     break;
                 default: break;
+            }
+
+            if (propertyInfo.Name == "Id")
+            {
+                Console.WriteLine("Updated id");
+                _currentDeviceId = editedObject.Id;
             }
         }
 

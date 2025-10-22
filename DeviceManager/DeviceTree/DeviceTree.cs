@@ -98,6 +98,7 @@ namespace DeviceManager
             group.Devices.Add(device);
             _deviceGroups.Add(device, groupName);
             _devicesById[device.Id] = device;
+            device.SetDeviceIdLink(_devicesById);
             TreeChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add, device));
         }
@@ -106,7 +107,6 @@ namespace DeviceManager
         {
             var group = GetGroupInternal(sourceGroupName);
             var targetGroup = GetGroupInternal(targeGroupName);
-
             var deviceToMove = GetDeviceInternal(group,deviceId);
 
             group.Devices.Remove(deviceToMove);
@@ -121,7 +121,8 @@ namespace DeviceManager
         {
             var group = GetGroupInternal(groupName);
             var deviceToRemove = GetDeviceInternal(group, deviceId);
-
+            deviceToRemove.RemoveDeviceIdLink();
+            
             group.Devices.Remove(deviceToRemove);
             _deviceGroups.Remove(deviceToRemove);
             _devicesById.Remove(deviceId);  
@@ -153,7 +154,6 @@ namespace DeviceManager
         public void RemoveDeviceFromGroup(string groupName, string deviceId)
         {
             RemoveDeviceInternal(groupName, deviceId);
-            
         }
 
         public void DisplayTree()

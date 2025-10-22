@@ -28,7 +28,7 @@ namespace DeviceManager
 
         private void ValidateAccessCardNumber(string value)
         {
-            if (value.Length % 2 != 0 || value.Length > 16 || !Regex.IsMatch(value, "^[0-9a-fA-F]*$"))
+            if (value == null || value.Length % 2 != 0 || value.Length > 16 || !Regex.IsMatch(value, "^[0-9a-fA-F]*$"))
             {
                 throw new InvalidCardNumberException("Invalid card number format: " + value);
             }
